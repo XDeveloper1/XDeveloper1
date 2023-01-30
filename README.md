@@ -47,7 +47,7 @@ Currently open for full-time/intern job roles in frontend development
 
 <p>
   <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=XDeveloper1&layout=compact&theme=white" alt="XDeveloper1" width=48%" >
-  <img src="https://github-readme-stats.vercel.app/api?username=XDeveloper1&&show_icons=true&theme=graywhite" align="right" width="48%">
+   <img src="https://github-readme-stats.vercel.app/api?username=XDeveloper1&&show_icons=true&theme=graywhite" align="right" width="48%">
 </p>
                                                                                                                                        
 [![Ankit's github activity graph](https://activity-graph.herokuapp.com/graph?username=XDeveloper1&theme=xcode)](https://git.io/XDeveloper1)
