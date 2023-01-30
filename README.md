@@ -9,8 +9,8 @@ Currently open for full-time/intern job roles in frontend development
 
 <h3>I'm Ankit Prajapati, a passionate FrontEnd Web Developer from India</h3>
 
-- 🔭 I’m currently working on **Front-end projects**
-- 🌱 I’m currently learning **React.js and NodeJS**
+<!-- - 🔭 I’m currently working on **Front-end projects** -->
+<!-- - 🌱 I’m currently learning **React.js and NodeJS** -->
 - 📫 How to reach me: [LinkedIn - @ankitkumar70179](https://www.linkedin.com/in/ankitkumar70179/)
 
 ### Skills
@@ -18,7 +18,7 @@ Currently open for full-time/intern job roles in frontend development
 - Languages - C++, `Javascript`, HTML, CSS 
 - Libraries & Frameworks -  `ReactJS`
 - Tools and Technologies - Git, NPM, Yarn, Github-Pages, Vercel, Netlify,
-- Areas for interests - `Web Development`, `Frontend Development`, `UI Design/Development`
+- Areas for interests - `Web Development`, `Frontend Development`, `UI Design/Development` `Android Developer`
 
 <h3 align="left">Languages and Tools:</h3>
 <p>
