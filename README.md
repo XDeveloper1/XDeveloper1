@@ -4,7 +4,7 @@
 
 ```javascript
 
-Currently open for full-time/intern job roles in frontend development
+Currently open for full-time/ roles in frontend development
 ```
 
 <h3>I'm Ankit Prajapati, a passionate FrontEnd Web Developer from India</h3>
