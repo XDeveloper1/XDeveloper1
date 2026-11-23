@@ -1,58 +1,47 @@
-// SaveNest chatbot: rule-based assistant that answers from the coupon data on this page.
-// To use an LLM instead, replace reply() with a fetch() to your own backend endpoint
-// (never put an API key in this file).
+// Simple SaveNest FAQ chatbot: answers questions about the website using keyword matching.
 (function () {
-  const all = () => [...window.LISTS.trending, ...window.LISTS.fall];
-  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const fmt = d => d.type === 'deal'
-    ? `<b>${esc(d.b)}</b>: ${esc(d.t)} (no code needed, use "Get deal" on the page)`
-    : `<b>${esc(d.b)}</b>: ${esc(d.t)}. Code <span class="cb-code" data-copy="${esc(d.c)}" title="Click to copy">${esc(d.c)}</span>`;
-
-  function find(q) {
-    const words = q.toLowerCase().split(/[^a-z0-9&]+/).filter(w => w.length > 2);
-    return all().map(d => {
-      const hay = (d.b + ' ' + d.t + ' ' + d.s).toLowerCase();
-      let score = 0;
-      if (q.toLowerCase().includes(d.b.toLowerCase())) score += 5;
-      words.forEach(w => { if (hay.includes(w)) score++; });
-      return { d, score };
-    }).filter(x => x.score > 0).sort((a, b) => b.score - a.score).map(x => x.d);
-  }
+  const FAQ = [
+    { k: ['hi', 'hello', 'hey'], a: 'Hi! Ask me anything about SaveNest: what it is, how codes work, contact details, terms or privacy.' },
+    { k: ['what is savenest', 'savenest', 'who are', 'about', 'website'], a: 'SaveNest is an independent coupon and deals website. We bring promo codes and offers from online stores into one place and check them regularly. More on the <a href="about.html">About page</a>.' },
+    { k: ['apply', 'redeem', 'works', 'coupon', 'code', 'codes', 'promo'], a: '1) Browse the coupons. 2) Click <b>Show code</b> and copy the code. 3) Go to the store\'s website, add items to your cart and enter the code at checkout.' },
+    { k: ['free', 'cost', 'price', 'pay', 'charge'], a: 'SaveNest is free to use. We may earn a commission when you buy through our links, at no extra cost to you.' },
+    { k: ['verify', 'verified', 'tested', 'real', 'legit', 'trust', 'working', 'expired', 'expire'], a: 'We collect offers, test codes where possible, label them with terms and expiry, and remove failing ones. We can\'t guarantee a code works: stores set and can change their offers.' },
+    { k: ['earn', 'commission', 'affiliate', 'money', 'revenue'], a: 'Some links are affiliate links. If you buy after clicking, we may earn a commission at no extra cost to you.' },
+    { k: ['contact', 'email', 'reach', 'support', 'message', 'feedback'], a: 'Email <b>info@savenest.vercel</b> or use the form on the <a href="contact.html">Contact page</a>. We usually reply within 1 to 2 business days.' },
+    { k: ['hours', 'open', 'time', 'when'], a: 'Our team is available Mon to Fri, 9am to 6pm.' },
+    { k: ['privacy', 'data', 'cookie', 'personal', 'information'], a: 'We collect only what we need to run the site and don\'t sell your personal information. Details are in the <a href="privacy.html">Privacy Policy</a>.' },
+    { k: ['terms', 'conditions', 'legal', 'policy'], a: 'Read the <a href="terms.html">Terms of Use</a> and <a href="privacy.html">Privacy Policy</a>.' },
+    { k: ['store', 'stores', 'brand', 'retailer'], a: 'We list offers from many online stores. See the store list and today\'s coupons on the <a href="index.html">Home page</a>. Stores set their own offers; we aren\'t affiliated with them unless stated.' },
+    { k: ['buy', 'order', 'payment', 'shipping', 'refund', 'delivery'], a: 'SaveNest is not a seller and doesn\'t process orders or payments. Orders, shipping and refunds are handled by the store you buy from.' },
+    { k: ['submit', 'share', 'add', 'offer'], a: 'Have a coupon to share? Send it through the <a href="contact.html">Contact page</a>.' }
+  ];
+  const FALLBACK = 'Sorry, I\'m not sure about that. Try asking about what SaveNest is, how codes work, contact, terms or privacy, or use the <a href="contact.html">Contact page</a>.';
+  const SUGGEST = ['What is SaveNest?', 'How do I use a coupon code?', 'Is it free?', 'How can I contact you?'];
 
   function reply(q) {
-    const t = q.toLowerCase().trim();
-    if (/^(hi|hello|hey|yo)\b/.test(t)) return 'Hi! Ask me about a store (e.g. "Crocs"), or say "best deals", "free shipping" or "how do codes work".';
-    if (/how|work|use|apply|redeem/.test(t) && /code|coupon|work|apply|use/.test(t))
-      return 'Click <b>Show code</b> on a coupon, copy the code, open the store\'s website, add items to your cart and paste the code at checkout. Always check the final discount on the retailer\'s site: offers can expire or have exclusions.';
-    if (/safe|real|verified|legit|affiliate|commission/.test(t))
-      return 'SaveNest is an independent coupon site. We don\'t issue the codes and can\'t guarantee them; stores may change or end offers anytime. We may earn a commission from qualifying purchases at no cost to you.';
-    if (/contact|support|help|email/.test(t)) return 'You can reach us from the <a href="contact.html">Contact page</a>.';
-    if (/best|top|biggest|trending|popular|deal/.test(t) && !find(q).length) {
-      const pct = all().map(d => ({ d, n: +((d.t.match(/(\d+)%/) || [])[1] || 0) })).sort((a, b) => b.n - a.n).slice(0, 4);
-      return 'Biggest discounts right now:<br>' + pct.map(x => fmt(x.d)).join('<br>');
-    }
-    if (/all|list|everything|stores/.test(t) && t.length < 25)
-      return 'Stores with offers: ' + [...new Set(all().map(d => d.b))].map(esc).join(', ') + '. Ask about any of them.';
-    const hits = find(q);
-    if (hits.length) return hits.slice(0, 4).map(fmt).join('<br>');
-    return 'I couldn\'t find that. Try a store name like "Crocs" or "Sally Beauty", or ask "best deals".';
+    const t = ' ' + q.toLowerCase().replace(/[^a-z0-9 ]/g, ' ') + ' ';
+    let best = null, bestScore = 0;
+    FAQ.forEach(f => {
+      const s = f.k.reduce((n, w) => n + (t.includes(' ' + w + ' ') || (w.length > 4 && t.includes(w)) ? 1 : 0), 0);
+      if (s > bestScore) { best = f; bestScore = s; }
+    });
+    return best ? best.a : FALLBACK;
   }
 
   const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html) e.innerHTML = html; return e; };
+  const esc = s => s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const fab = el('button', 'cb-fab', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a8 8 0 01-11.6 7.1L4 20l1-4.6A8 8 0 1121 12z"/></svg>');
   fab.setAttribute('aria-label', 'Open chat');
-  const win = el('div', 'cb-win');
-  win.setAttribute('role', 'dialog'); win.setAttribute('aria-label', 'SaveNest assistant');
+  const win = el('div', 'cb-win'); win.setAttribute('role', 'dialog'); win.setAttribute('aria-label', 'SaveNest assistant');
   const head = el('div', 'cb-head', '<span>SaveNest Assistant</span>');
   const x = el('button', '', '&times;'); x.setAttribute('aria-label', 'Close chat'); head.appendChild(x);
   const msgs = el('div', 'cb-msgs'); msgs.setAttribute('aria-live', 'polite');
   const chips = el('div', 'cb-chips');
-  ['Best deals', 'How do codes work?', 'List stores', 'Is this safe?'].forEach(c => {
-    const b = el('button', '', c); b.onclick = () => send(c); chips.appendChild(b);
-  });
+  SUGGEST.forEach(c => { const b = el('button', '', c); b.onclick = () => send(c); chips.appendChild(b); });
   const form = el('form', 'cb-form');
-  const inp = el('input'); inp.placeholder = 'Ask about a store or deal...'; inp.setAttribute('aria-label', 'Message');
-  form.append(inp, el('button', '', 'Send')); form.lastChild.type = 'submit';
+  const inp = el('input'); inp.placeholder = 'Ask a question about the website...'; inp.setAttribute('aria-label', 'Message');
+  const sendBtn = el('button', '', 'Send'); sendBtn.type = 'submit';
+  form.append(inp, sendBtn);
   win.append(head, msgs, chips, form);
   document.body.append(fab, win);
 
@@ -65,13 +54,9 @@
   form.onsubmit = e => { e.preventDefault(); send(inp.value); inp.value = ''; };
   const toggle = o => {
     win.classList.toggle('open', o);
-    if (o) { if (!msgs.children.length) add('Hi! I\'m the SaveNest assistant. Ask me about a store or deal.', 'bot'); inp.focus(); }
+    if (o) { if (!msgs.children.length) add('Hi! I\'m the SaveNest assistant. Ask me about the website.', 'bot'); inp.focus(); }
   };
   fab.onclick = () => toggle(!win.classList.contains('open'));
   x.onclick = () => toggle(false);
   document.addEventListener('keydown', e => { if (e.key === 'Escape') toggle(false); });
-  msgs.addEventListener('click', e => {
-    const c = e.target.closest('.cb-code'); if (!c) return;
-    navigator.clipboard && navigator.clipboard.writeText(c.dataset.copy).then(() => { c.textContent = 'Copied'; setTimeout(() => c.textContent = c.dataset.copy, 1200); });
-  });
 })();
